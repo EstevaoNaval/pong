@@ -52,7 +52,6 @@ def calc_y_speed(paddle, ball):
 
 def cat_sight(screen, ball):
     range_ball_x = ceil((NUM_CAT_FRAME * abs(ball.x)) / SCREEN_WIDTH)
-    if range_ball_x == 0: range_ball_x +=1
 
 
     bg = pygame.image.load("./asset/background_image/frame-{}.gif".format(range_ball_x))
@@ -66,7 +65,7 @@ def main():
     clock = pygame.time.Clock()
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    bg = pygame.image.load("./asset/background_image/frame-17.gif")
+    bg = pygame.image.load("./asset/background_image/frame-21.gif")
 
     left_paddle = Paddle(10, SCREEN_HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
     right_paddle = Paddle(SCREEN_WIDTH - 10 - PADDLE_WIDTH, SCREEN_HEIGHT // 2 - PADDLE_HEIGHT // 2, PADDLE_WIDTH, PADDLE_HEIGHT)
