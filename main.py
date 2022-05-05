@@ -33,22 +33,41 @@ def handle_paddle_movement(keys, left_paddle, right_paddle):
     if keys[pygame.K_UP] and right_paddle.y - right_paddle.SPEED >= 0: right_paddle.move(up=True)
     elif keys[pygame.K_DOWN] and right_paddle.y + right_paddle.SPEED + left_paddle.height <= SCREEN_HEIGHT: right_paddle.move(up=False)
 
+def play_collision_sound(type_collision, pingSound, pongSound, pingPongSoundTurn):
+    if type_collision == "PADDLE":
+        if(not(pingPongSoundTurn)): 
+            pingSound.play()
+            return 1
+        else:
+            pongSound.play()
+            return 0
+    return pingPongSoundTurn
+
 def handle_collision(ball, left_paddle, right_paddle):
-    if ball.y + ball.radius >= SCREEN_HEIGHT: ball.y_speed *= -1
-    elif ball.y - ball.radius <= 0: ball.y_speed *= -1
+    if ball.y + ball.radius >= SCREEN_HEIGHT: 
+        ball.y_speed *= -1
+        return "WALL"
+    
+    elif ball.y - ball.radius <= 0: 
+        ball.y_speed *= -1
+        return "WALL"
 
     if ball.x_speed < 0:
         if ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.height:
             if ball.x - ball.radius <= left_paddle.x + left_paddle.width:
-
                 ball.x_speed *= -1
                 ball.y_speed = -1 * calc_y_speed(left_paddle, ball)
-    else:  
+                return "PADDLE"      
+    else:   
         if ball.y >= right_paddle.y and ball.y <= right_paddle.y + right_paddle.height:
             if ball.x + ball.radius >= right_paddle.x:
 
                 ball.x_speed *= -1
                 ball.y_speed = -1 * calc_y_speed(right_paddle, ball)
+
+                return "PADDLE"
+    
+    return None
 
 def calc_y_speed(paddle, ball):
     middle_y = paddle.y + paddle.height / 2
@@ -88,6 +107,12 @@ def main():
     
     ball = Ball(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, BALL_RADIUS)
 
+    pingSound = pygame.mixer.Sound("./asset/sound/sounds_ping.wav")
+    pongSound = pygame.mixer.Sound("./asset/sound/sounds_pong.wav")
+    goalSound = pygame.mixer.Sound("./asset/sound/sounds_goal.wav")
+    victorySound = pygame.mixer.Sound("./asset/sound/victory.wav")
+    pingPongSoundTurn = 1
+
     left_score, right_score = 0, 0
 
     while running:
@@ -103,22 +128,25 @@ def main():
 
         ball.move()
 
-        handle_collision(ball, left_paddle, right_paddle)
+        type_collision = handle_collision(ball, left_paddle, right_paddle)
+
+        pingPongSoundTurn = play_collision_sound(type_collision, pingSound, pongSound, pingPongSoundTurn)
 
         if ball.x < 0 or ball.x > SCREEN_WIDTH: 
             if ball.x < 0: right_score += 1
             elif ball.x > SCREEN_WIDTH: left_score += 1
             
+            goalSound.play()
             reset(left_paddle, right_paddle, ball)
 
-        won = False
         if left_score >= WINNING_SCORE or right_score >= WINNING_SCORE:
             if left_score >= WINNING_SCORE:
-                won = True
                 win_text = "Congratulations!!! Left Player"
-            elif right_score >= WINNING_SCORE: 
-                won = True
+            elif right_score >= WINNING_SCORE:
                 win_text = "Congratulations!!! Right Player"
+
+            goalSound.stop()
+            victorySound.play()
 
             congrats_message(screen, win_text)
             
