@@ -1,8 +1,4 @@
-from ast import If
 from math import ceil
-from multiprocessing import reduction
-from operator import le
-from tkinter import Widget
 import pygame, sys
 from pygame.locals import *
 from settings import *
@@ -11,7 +7,19 @@ from ball import Ball
 
 pygame.init()
 
-def draw(screen, paddles, ball, color):
+def congrats_message(screen, win_text):
+    text = WINNER_FONT.render(win_text, 1, WHITE)
+    screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, (3 * SCREEN_HEIGHT)//4 - text.get_height()//2))
+    pygame.display.update()
+    pygame.time.delay(5000) 
+
+def draw(screen, paddles, ball, color, left_score, right_score):
+    left_score_text = SCORE_FONT.render("{}".format(left_score), 1, color)
+    right_score_text = SCORE_FONT.render("{}".format(right_score), 1, color)
+    
+    screen.blit(left_score_text, (SCREEN_WIDTH//4 - left_score_text.get_width()//2, 20))
+    screen.blit(right_score_text, (SCREEN_WIDTH * (3/4) - right_score_text.get_width()//2, 20))
+
     for paddle in paddles:
         paddle.draw(screen, color)
 
@@ -50,9 +58,17 @@ def calc_y_speed(paddle, ball):
     
     return y_speed
 
+def reset(left_paddle, right_paddle, ball):
+    ball.reset()
+    left_paddle.reset()
+    right_paddle.reset()
+
+
 def cat_sight(screen, ball):
     range_ball_x = ceil((NUM_CAT_FRAME * abs(ball.x)) / SCREEN_WIDTH)
-
+    if range_ball_x <= 0: range_ball_x = 1
+        
+    elif range_ball_x >= 50: range_ball_x = 49  
 
     bg = pygame.image.load("./asset/background_image/frame-{}.gif".format(range_ball_x))
 
@@ -72,10 +88,12 @@ def main():
     
     ball = Ball(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, BALL_RADIUS)
 
+    left_score, right_score = 0, 0
+
     while running:
         clock.tick(FPS)
         
-        draw(screen, [left_paddle, right_paddle], ball, WHITE)
+        draw(screen, [left_paddle, right_paddle], ball, WHITE, left_score, right_score)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
@@ -86,6 +104,26 @@ def main():
         ball.move()
 
         handle_collision(ball, left_paddle, right_paddle)
+
+        if ball.x < 0 or ball.x > SCREEN_WIDTH: 
+            if ball.x < 0: right_score += 1
+            elif ball.x > SCREEN_WIDTH: left_score += 1
+            
+            reset(left_paddle, right_paddle, ball)
+
+        won = False
+        if left_score >= WINNING_SCORE or right_score >= WINNING_SCORE:
+            if left_score >= WINNING_SCORE:
+                won = True
+                win_text = "Congratulations!!! Left Player"
+            elif right_score >= WINNING_SCORE: 
+                won = True
+                win_text = "Congratulations!!! Right Player"
+
+            congrats_message(screen, win_text)
+            
+            reset(left_paddle, right_paddle, ball)
+            left_score, right_score = 0, 0   
 
         cat_sight(screen, ball)
     
