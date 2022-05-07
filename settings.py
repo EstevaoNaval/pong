@@ -6,7 +6,7 @@ pygame.init()
 FPS = 60
 SCREEN_WIDTH, SCREEN_HEIGHT = 800,600 # width x height
 
-WINNING_SCORE = 10
+WINNING_SCORE = 5
 SCORE_FONT = pygame.font.SysFont("comicsans", 100)
 WINNER_FONT = pygame.font.SysFont("comicsans", 50)
 

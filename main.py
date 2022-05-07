@@ -27,7 +27,7 @@ def draw(screen, paddles, ball, color, left_score, right_score):
 
 
 def handle_paddle_movement(keys, left_paddle, right_paddle):
-    if keys[pygame.K_w] and left_paddle.y - left_paddle.SPEED >= 0: left_paddle.move(up=True)
+    if keys[pygame.K_w]  and left_paddle.y - left_paddle.SPEED >= 0: left_paddle.move(up=True)
     elif keys[pygame.K_s] and left_paddle.y + left_paddle.SPEED + left_paddle.height <= SCREEN_HEIGHT: left_paddle.move(up=False)
 
     if keys[pygame.K_UP] and right_paddle.y - right_paddle.SPEED >= 0: right_paddle.move(up=True)
@@ -114,6 +114,8 @@ def main():
     pingPongSoundTurn = 1
 
     left_score, right_score = 0, 0
+
+    key = None
 
     while running:
         clock.tick(FPS)
