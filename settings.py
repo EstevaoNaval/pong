@@ -11,6 +11,7 @@ SCORE_FONT = pygame.font.SysFont("comicsans", 100)
 WINNER_FONT = pygame.font.SysFont("comicsans", 50)
 
 NUM_CAT_FRAME = 49
+FIRST_FRAME, LAST_FRAME = 1, 49
 
 WHITE = (251,244,229)
 PINK = (93.7, 83.9, 83.9)

@@ -26,12 +26,12 @@ def draw(screen, paddles, ball, color, left_score, right_score):
     ball.draw(screen, color)
 
 
-def handle_paddle_movement(keys, left_paddle, right_paddle):
-    if keys[pygame.K_w]  and left_paddle.y - left_paddle.SPEED >= 0: left_paddle.move(up=True)
-    elif keys[pygame.K_s] and left_paddle.y + left_paddle.SPEED + left_paddle.height <= SCREEN_HEIGHT: left_paddle.move(up=False)
+def handle_paddle_movement(keys, right_paddle):
+    # if keys[pygame.K_w]  and left_paddle.y - left_paddle.SPEED >= 0: left_paddle.move(up=True)
+    # elif keys[pygame.K_s] and left_paddle.y + left_paddle.SPEED + left_paddle.height <= SCREEN_HEIGHT: left_paddle.move(up=False)
 
     if keys[pygame.K_UP] and right_paddle.y - right_paddle.SPEED >= 0: right_paddle.move(up=True)
-    elif keys[pygame.K_DOWN] and right_paddle.y + right_paddle.SPEED + left_paddle.height <= SCREEN_HEIGHT: right_paddle.move(up=False)
+    elif keys[pygame.K_DOWN] and right_paddle.y + right_paddle.SPEED + right_paddle.height <= SCREEN_HEIGHT: right_paddle.move(up=False)
 
 def play_collision_sound(type_collision, pingSound, pongSound, pingPongSoundTurn):
     if type_collision == "PADDLE":
@@ -82,18 +82,22 @@ def reset(left_paddle, right_paddle, ball):
     left_paddle.reset()
     right_paddle.reset()
 
-
 def cat_sight(screen, ball):
     range_ball_x = ceil((NUM_CAT_FRAME * abs(ball.x)) / SCREEN_WIDTH)
-    if range_ball_x <= 0: range_ball_x = 1
+    if range_ball_x <= 0: range_ball_x = FIRST_FRAME
         
-    elif range_ball_x >= 50: range_ball_x = 49  
+    elif range_ball_x >= 50: range_ball_x = LAST_FRAME
 
     bg = pygame.image.load("./asset/background_image/frame-{}.gif".format(range_ball_x))
 
     pygame.display.update()
     screen.blit(bg, (0,0))
-   
+
+def computer_make_paddle_move(ball, left_paddle):
+    if ball.y < left_paddle.y and left_paddle.y - left_paddle.SPEED >= 0: 
+        left_paddle.move(up=True)
+    elif ball.y > left_paddle.y and left_paddle.y + left_paddle.SPEED + left_paddle.height <= SCREEN_HEIGHT:
+        left_paddle.move(up=False)
 
 def main():
     running = 1
@@ -115,8 +119,6 @@ def main():
 
     left_score, right_score = 0, 0
 
-    key = None
-
     while running:
         clock.tick(FPS)
         
@@ -125,8 +127,9 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
 
+        computer_make_paddle_move(ball, left_paddle)
         keys = pygame.key.get_pressed()
-        handle_paddle_movement(keys, left_paddle, right_paddle)
+        handle_paddle_movement(keys, right_paddle)
 
         ball.move()
 
@@ -143,9 +146,9 @@ def main():
 
         if left_score >= WINNING_SCORE or right_score >= WINNING_SCORE:
             if left_score >= WINNING_SCORE:
-                win_text = "Congratulations!!! Left Player"
+                win_text = "Power to the machines!!!"
             elif right_score >= WINNING_SCORE:
-                win_text = "Congratulations!!! Right Player"
+                win_text = "You beat the machine!!!"
 
             goalSound.stop()
             victorySound.play()
